@@ -10,11 +10,12 @@ User Story:
 5.write checksum calculate function<br />
 6.create push command handler (it will create new file and will update menifest file)<br />
 
-command details
-1.create repo
-    cr <folderName>
+command details  <br />
 
-2.checkin file
-    ch <folderName>
-    select file from file browser 
+1.create repo<br />
+    cr <folderName><br />
+
+2.checkin file<br />
+    ch <folderName><br />
+    select file from file browser<br />
 
