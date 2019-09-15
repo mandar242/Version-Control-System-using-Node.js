@@ -51,9 +51,9 @@ module.exports = function (app) {
             fs.mkdirSync(fpath)
             console.log('Repo created successfully.')
             // writeFile function with filename, content and callback function
-            fs.writeFile(fpath.concat('/menifest.txt'), 'creating menifest file', function (err) {
+            fs.writeFile(fpath.concat('/manifest .txt'), 'Creating manifest file', function (err) {
                if (err) throw err;
-               console.log('Menifest File is created successfully.');
+               console.log('Manifest File is created successfully.');
             });
          }
       } catch (err) {
