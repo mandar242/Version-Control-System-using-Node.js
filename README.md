@@ -13,9 +13,9 @@ User Story:
 command details  <br />
 
 1.create repo<br />
-    cr <folderName><br />
+    cr #folderName <br />
 
 2.checkin file<br />
-    ch <folderName><br />
+    ch #folderName <br />
     select file from file browser<br />
 
