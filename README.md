@@ -9,6 +9,7 @@ User Story:
 4.write create repo fun (create new folder and menifest file) with arg as a command: neha (done)<br />
 5.write checksum calculate function: neha (done)<br />
 6.create push command handler (it will create new file and will update menifest file): neha (done)<br />
+7.Proper UI design 
 
 command details  <br />
 
