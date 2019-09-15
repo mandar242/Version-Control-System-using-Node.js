@@ -7,8 +7,8 @@ User Story:
 2.creating Hello world program: neha, ash (done)<br />
 3.passing arg to node server: neha (done)<br />
 4.write create repo fun (create new folder and menifest file) with arg as a command: neha (done)<br />
-5.write checksum calculate function<br />
-6.create push command handler (it will create new file and will update menifest file)<br />
+5.write checksum calculate function: neha (done)<br />
+6.create push command handler (it will create new file and will update menifest file): neha (done)<br />
 
 command details  <br />
 
