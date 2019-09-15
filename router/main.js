@@ -32,7 +32,7 @@ module.exports = function (app) {
             createFolder(folderName);
          } if (cmd == checkin) {
             //upload file
-            uploadFile(req,folderName)
+            uploadFile(req,folderName,res)
          }
       }
    }
@@ -89,7 +89,7 @@ module.exports = function (app) {
    }
 
    //Author Neha : function to upload file name
-   var uploadFile = function(req,folderName){
+   var uploadFile = function(req,folderName,res){
       if (Object.keys(req.files).length == 0) {
          return res.status(400).send('No files were uploaded.');
       }
