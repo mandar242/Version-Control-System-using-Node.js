@@ -13,14 +13,14 @@ module.exports = function (app) {
    });
    app.use(fileUpload());
    app.post('/submit-Command-data', function (req, res) {
-    
+
       var commandName = req.body.command;
-      parseCommand(commandName,req, res);
-         res.send(commandName + ' success!');
-         
+      parseCommand(commandName, req, res);
+      res.send(commandName + ' success!');
+
    });
 
-   var parseCommand = function (fcommand,req,res) {
+   var parseCommand = function (fcommand, req, res) {
       var cmdArray = fcommand.split(" ");
 
       var cmd = cmdArray[0].toUpperCase();
@@ -31,20 +31,13 @@ module.exports = function (app) {
             //create folder
             createFolder(folderName);
          } if (cmd == checkin) {
-            if (Object.keys(req.files).length == 0) {
-               return res.status(400).send('No files were uploaded.');
-             }
-             var fileObj = req.files.filetocheckin;
-             var fileName = folderName.concat('/');
-             fileName = fileName.concat(req.files.filetocheckin.name);
-             fileObj.mv(fileName, function(err) {
-               if (err)
-                 return res.status(500).send(err);
-               res.send('File uploaded!');
-             });
+            //upload file
+            uploadFile(req,folderName)
          }
       }
    }
+
+   //Author Neha : function to createFolder
    var createFolder = function (fpath) {
       try {
          if (!fs.existsSync(fpath)) {
@@ -59,5 +52,53 @@ module.exports = function (app) {
       } catch (err) {
          console.error(err)
       }
+   }
+
+   //Author Neha : function to calculate Artifact Id.
+   var calculateChecksum = function (data) {
+      const weightedValues = [1, 3, 7, 11, 13];
+      const modVal = 2147483647;
+      const separatorString = '-L';
+      var checksum = 0;
+      var file_lenght = 0;
+      var i = 0;
+      data.forEach(element => {
+         checksum = checksum + (element * weightedValues[i]);
+         i = i + 1;
+         file_lenght = file_lenght + 1;
+         if (i == 5) {
+            i = 0;
+         }
+      });
+      checksum = checksum % modVal;
+      var checksumHex = checksum.toString(16);
+      var filenamewithAFID = checksumHex.concat(separatorString);
+      filenamewithAFID = filenamewithAFID.concat(file_lenght);
+      return filenamewithAFID;
+   }
+
+   //Author Neha : function to generate file name
+   var generateFileName = function (fileObj,folderName) {
+      var fname = fileObj.name.split(".");
+      var final_fileName = folderName.concat('/');
+      var filenamewithAFID = calculateChecksum(fileObj.data);
+      final_fileName = final_fileName.concat(filenamewithAFID);
+      final_fileName = final_fileName.concat('.')
+      final_fileName = final_fileName.concat(fname[1])
+      return final_fileName;
+   }
+
+   //Author Neha : function to upload file name
+   var uploadFile = function(req,folderName){
+      if (Object.keys(req.files).length == 0) {
+         return res.status(400).send('No files were uploaded.');
+      }
+      var fileObj = req.files.filetocheckin;
+      var final_fileName = generateFileName(fileObj,folderName);
+      fileObj.mv(final_fileName, function (err) {
+         if (err)
+            return res.status(500).send(err);
+         res.send('File uploaded!');
+      });
    }
 }
