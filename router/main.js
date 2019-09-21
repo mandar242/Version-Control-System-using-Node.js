@@ -95,8 +95,8 @@ module.exports = function (app) {
       if (Object.keys(req.files).length == 0) {
          return res.status(400).send('No files were uploaded.');
       }
-
-      // multiple files upload      
+      if((req.files.filetocheckin).length > 1){
+         // multiple files upload      
       _.forEach(_.keysIn(req.files.filetocheckin), (key) => {
          let fileObj = req.files.filetocheckin[key];
          var fname = fileObj.name.split(".");
@@ -110,5 +110,19 @@ module.exports = function (app) {
             res.send('File uploaded!');
          });
       });
+      }else {
+         let fileObj = req.files.filetocheckin;
+         var fname = fileObj.name.split(".");
+         var filePath=folderName.concat('/'+fname[0]);
+         if (!fs.existsSync(filePath)) {
+            fs.mkdirSync(filePath)}
+         var final_fileName = generateFileName(fileObj,filePath);
+         fileObj.mv(final_fileName, function (err) {
+            if (err)
+               return res.status(500).send(err);
+            res.send('File uploaded!');
+         });
+      }
+      
    }
 }
