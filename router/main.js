@@ -64,6 +64,13 @@ module.exports = function (app) {
             listReop(folderName,res);
          }
       }
+      if (cmdArray.length == 3) {
+           if (cmd == checkin) {
+                //upload file
+                icmdArray[2].toUpperCase();
+                uploadFile(folderName, fields, res, files, userComment)
+            }
+        }
    }
 
    // function to create new repo
@@ -161,6 +168,7 @@ module.exports = function (app) {
             manifestdata = manifestdata.concat('\t' + relativePath)
             manifestdata = manifestdata.concat('\t' + dateTime)
             manifestdata = manifestdata.concat('\t' + final_fileName)
+            manifestdata = manifestdata.concat('\t' + userComment)
             manifestdata = manifestdata.concat('\n')
 
             fs.appendFile(manifestpath, manifestdata, function (err) {
