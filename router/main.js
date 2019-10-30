@@ -67,7 +67,7 @@ module.exports = function (app) {
       if (cmdArray.length == 3) {
            if (cmd == checkin) {
                 //upload file
-                icmdArray[2].toUpperCase();
+                var userComment = cmdArray[2].toUpperCase();
                 uploadFile(folderName, fields, res, files, userComment)
             }
         }
