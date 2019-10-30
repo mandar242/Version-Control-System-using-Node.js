@@ -1,13 +1,80 @@
+<!-- 
+This is the landing page of web application. It submits form to the nodejs server
+
+Authers :
+Neha Bhoi (Neha.Bhoi@student.csulb.edu)
+Ashwini Ukarde (ashwiniganesh.ukarde@student.csulb.edu)
+Mandar Kuklarni (mandarvijay.kulkarni@student.csulb.edu)
+Mayank Pidiha (mayank.pidiha@student.csulb.edu) 
+
+-->
+
+
 <html>
-    <head>
+<head>
     <meta charset="utf-8" />
     <title>Version Control System</title>
-    </head>
-    <body>
-            <form action="/submit-Command-data" method="post" ref='uploadForm' id='uploadForm' encType="multipart/form-data">
-                Command: <input name="command" type="text" /> <br />
-                <input type="file" name="filetocheckin" multiple/>
-                <input type="submit" />
-            </form>
-    </body>
+</head>
+<!-- css styles -->
+<style>
+    .container {
+        padding: 16px;
+    width: 1170px;
+    border: solid;
+    top: -24px;
+    margin: 28px;
+    background: peachpuff;
+    }
+</style>
+<body>
+    <!--Include client side javascript file  -->
+    <script src="/bundle.js"></script>
+    <!--Include bootstrap style  -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <!-- Include Ajax library -->
+    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <!-- Submit form -->
+    <form method="post" ref='uploadForm' id='uploadForm' encType="multipart/form-data">
+        <div class="container">
+        <h1>Version Control System</h1>    
+        <br />
+        <div class="row">
+            <div class="col-sm-4">
+                Command: <input id="command" name="command" type="text" /> <br />
+            </div>
+        </div>
+        <br /><br />
+        <div class="row">
+            <div class="col-sm-4">
+                <input type="radio" name="x" id="checkFolder" name="f1" value="folder" checked> Folder Upload<br>
+                <br />
+                <input type="radio" name="x" id="checkFiles" name="f2" value="file"> File Upload<br>
+            </div>
+        </div>
+        <br /><br />
+        <div class="row">
+            <div class="col-sm-2">
+                <input id="picker" type="file" name="filetocheckin" multiple webkitdirectory mozdirectory>
+            </div>
+            <div class="col-sm-2">
+                <input id="picker1" type="file" name="filetocheckin1" multiple style="visibility: hidden" />
+            </div>
+        </div>
+        <br /><br />
+        <div class="col-sm-4">
+            <input id="btn1" type="submit" value="ok" />
+        </div>
+        <br /><br />
+        <div class="col-sm-4">
+            <ul id="listing"></ul>
+        </div>
+        <br /><br />
+        <div class="col-sm-4">
+            <h3 id="list_title"></h3>
+            <ul id="snapshotList"></ul>
+        </div>
+    </div>
+    </form>
+</body>
+
 </html>
