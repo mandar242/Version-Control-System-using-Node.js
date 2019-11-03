@@ -59,7 +59,7 @@ module.exports = function (app) {
             createFolder(folderName);
          } if (cmd == list) {
             //function to list snapshots
-            listReop(folderName, res);
+            listReop(folderName, res,fields);
          }
       }
       if (cmdArray.length == 3) {
@@ -188,10 +188,10 @@ module.exports = function (app) {
    }
 
    // function to list snapshots
-   var listReop = function (folderName, res) {
+   var listReop = function (folderName, res, fields) {
       try {
          if (fs.existsSync(folderName)) {
-            const manifestFilepath = folderName + '/manifest.txt'
+            const manifestFilepath = getmanifestpath(folderName);
             var contents = fs.readFileSync(manifestFilepath, { encoding: 'utf-8' });
             var contentNewLines = contents.split('\n');
             var snapshots = new Map()
@@ -200,10 +200,14 @@ module.exports = function (app) {
                line = contentNewLines[i]
                if (line != '') {
                   words = line.split('\t');
-                  var key = words[words.length - 1]
-                  if (!snapshots.has(key)) {
-                     snapshots.set(key, 1)
-                     snapshotsList.push(key)
+                  command = words[0].split(' ')
+                  console.log(command)
+                  if(command[0].toUpperCase() == checkin){
+                     var key = words[words.length - 1]
+                     if (!snapshots.has(key)) {
+                        snapshots.set(key, 1)
+                        snapshotsList.push(key)
+                     }
                   }
                }
             }
@@ -215,6 +219,7 @@ module.exports = function (app) {
                         snapshotsList: snapshotsList
                      }
                   });
+               listmanifestentry(folderName,fields)
                res.status(200).send("list of snapshot");
             } else {
                res.error('List command Error!');
@@ -227,6 +232,22 @@ module.exports = function (app) {
       }
    }
 
+   // function to add list entry in manifest file
+   var listmanifestentry = function(folderName,fields){
+      var manifestpath = getmanifestpath(folderName)
+      var manifestdata = "";
+      var dateTime = getdateTime();
+      manifestdata = manifestdata.concat(fields.command[0] + '\t')
+      manifestdata = manifestdata.concat('\t' + dateTime)
+      manifestdata = manifestdata.concat('\n')
+
+      fs.appendFile(manifestpath, manifestdata, function (err) {
+         if (err) throw err;
+         console.log('updated manifest file!');
+      });
+      manifestdata = "";
+
+   }
 
    // function to check out sanpshot
    var checkoutFolder = function (folderName, tragetFolder, snapshotName,fields) {
@@ -234,9 +255,10 @@ module.exports = function (app) {
       const contents = fs.readFileSync(manifestpath, { encoding: 'utf-8' });
       const sanpshotData =parseManifest(contents,snapshotName)
       copyFiles(folderName,sanpshotData,tragetFolder,fields)
+
    }
 
-
+   // function to add Entry in manifest file 
    var checkoutmanifestentry = function(folderName,fields,srcfilepath,destinationpath){
       // add maifest Entry
       var manifestpath = getmanifestpath(folderName)
@@ -256,6 +278,7 @@ module.exports = function (app) {
       manifestdata = "";
    }
    
+   // function to copy files
    var copyFiles = function(folderName,sanpshotData,tragetFolder,fields){
       for(i = 0 ; i< sanpshotData.length; i++){
          //create target folder
@@ -281,13 +304,14 @@ module.exports = function (app) {
 
          //copy files
          var destinationpath = tragetFolder +'/'+ sanpshotData[i].actual_path.split('./')[1];
-         fs.copyFile(sanpshotData[i].location,destinationpath,(err) => {
+         fs.copyFile(sanpshotData[i].location,destinationpath,(err,callback) => {
             if (err) throw err;
           });
           console.log(sanpshotData[i].location + ' was copied to ', destinationpath);
           checkoutmanifestentry('./'+folderName,fields,sanpshotData[i].location,destinationpath)
       }
    }
+   
 
    // function to parse manifest file
    var parseManifest = function(contents,snapshotName){
