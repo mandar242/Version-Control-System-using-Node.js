@@ -56,9 +56,6 @@ module.exports = function (app) {
          if (cmd == createRepo) {
             //create folder
             createFolder(folderName);
-         } if (cmd == checkin) {
-            //upload file
-            uploadFile(folderName, fields, res, files)
          } if (cmd == list) {
             //function to list snapshots
             listReop(folderName,res);
@@ -127,7 +124,7 @@ module.exports = function (app) {
    }
 
    // function to upload file name
-   var uploadFile = function (folderName, fields, res, files) {
+   var uploadFile = function (folderName, fields, res, files,userComment) {
       if (Object.keys(files).length == 0) {
          return res.status(400).send('No files were uploaded.');
       }
