@@ -17,6 +17,7 @@ const multiparty = require('multiparty');
 const createRepo = "CR";
 const checkin = "CH";
 const list = "LIST"
+const checkout = "CHECK-OUT"
 const _ = require('lodash');
 
 
@@ -58,18 +59,28 @@ module.exports = function (app) {
             createFolder(folderName);
          } if (cmd == list) {
             //function to list snapshots
-            listReop(folderName,res);
+            listReop(folderName, res);
          }
       }
       if (cmdArray.length == 3) {
-           if (cmd == checkin) {
-                //upload file
-                var userComment = cmdArray[2].toUpperCase();
-                uploadFile(folderName, fields, res, files, userComment)
-            }
-        }
+         if (cmd == checkin) {
+            //upload file
+            var userComment = cmdArray[2].toUpperCase();
+            uploadFile(folderName, fields, res, files, userComment)
+         }
+
+      }
+      if (cmdArray.length == 4) {
+         if (cmd === checkout) {
+            const tragetFolder = './' + cmdArray[2];
+            const snapshotName = cmdArray[3].toUpperCase();
+            //check out snapshot
+            checkoutFolder(cmdArray[1], tragetFolder, snapshotName,fields)
+         }
+      }
    }
 
+   
    // function to create new repo
    var createFolder = function (fpath) {
       try {
@@ -116,7 +127,7 @@ module.exports = function (app) {
       var fname = fileObj.originalFilename.split('/')
       fname = fname[fname.length - 1].split('.')
       var filenamewithAFID = calculateChecksum(fileObj);
-      folderName = folderName.concat('/',fname[0])
+      folderName = folderName.concat('/', fname[0])
       var final_fileName = folderName.concat('/' + filenamewithAFID);
       final_fileName = final_fileName.concat('.')
       final_fileName = final_fileName.concat(fname[1])
@@ -124,7 +135,7 @@ module.exports = function (app) {
    }
 
    // function to upload file name
-   var uploadFile = function (folderName, fields, res, files,userComment) {
+   var uploadFile = function (folderName, fields, res, files, userComment) {
       if (Object.keys(files).length == 0) {
          return res.status(400).send('No files were uploaded.');
       }
@@ -142,8 +153,8 @@ module.exports = function (app) {
                   fs.mkdirSync(relativePath)
                }
             }
-            var fname = fname[fname.length-1].split(".");
-            x = relativePath.concat('/',fname[0])
+            var fname = fname[fname.length - 1].split(".");
+            x = relativePath.concat('/', fname[0])
             if (!fs.existsSync(x)) {
                fs.mkdirSync(x)
             }
@@ -154,14 +165,12 @@ module.exports = function (app) {
             });
 
             // add maifest Entry
-            var manifestpath = folderName.concat('/manifest.txt')
+            var manifestpath = getmanifestpath(folderName)
             var manifestdata = "";
-            var today = new Date();
-            var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-            var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-            var dateTime = date + ' ' + time;
+            var dateTime = getdateTime();
             manifestdata = manifestdata.concat(fields.command[0] + '\t')
-            relativePath = relativePath.concat('/' + fname[fname.length - 1])
+            var filepath = fileObj.originalFilename.split("/")
+            relativePath = relativePath.concat('/' + filepath[filepath.length-1])
             manifestdata = manifestdata.concat('\t' + relativePath)
             manifestdata = manifestdata.concat('\t' + dateTime)
             manifestdata = manifestdata.concat('\t' + final_fileName)
@@ -179,40 +188,143 @@ module.exports = function (app) {
    }
 
    // function to list snapshots
-   var listReop = function (folderName,res) {
+   var listReop = function (folderName, res) {
       try {
          if (fs.existsSync(folderName)) {
             const manifestFilepath = folderName + '/manifest.txt'
-            var contents = fs.readFileSync(manifestFilepath, {encoding: 'utf-8'});
+            var contents = fs.readFileSync(manifestFilepath, { encoding: 'utf-8' });
             var contentNewLines = contents.split('\n');
             var snapshots = new Map()
             var snapshotsList = []
-            for(i=1;i<contentNewLines.length;i++){
+            for (i = 1; i < contentNewLines.length; i++) {
                line = contentNewLines[i]
-               if(line != ''){
+               if (line != '') {
                   words = line.split('\t');
-                  var key = words[words.length-1]
-                  if(!snapshots.has(key)){
-                     snapshots.set(key,1)
+                  var key = words[words.length - 1]
+                  if (!snapshots.has(key)) {
+                     snapshots.set(key, 1)
                      snapshotsList.push(key)
                   }
                }
             }
-            if(snapshotsList.length){
+            if (snapshotsList.length) {
                res.json(
-                  { "list" : {
-                     reponame : folderName,
-                     snapshotsList : snapshotsList
-                  } });
+                  {
+                     "list": {
+                        reponame: folderName,
+                        snapshotsList: snapshotsList
+                     }
+                  });
                res.status(200).send("list of snapshot");
-            }else {
+            } else {
                res.error('List command Error!');
             }
-            
+
          }
 
       } catch (err) {
          console.error(err)
       }
+   }
+
+
+   // function to check out sanpshot
+   var checkoutFolder = function (folderName, tragetFolder, snapshotName,fields) {
+      const manifestpath = getmanifestpath(folderName);
+      const contents = fs.readFileSync(manifestpath, { encoding: 'utf-8' });
+      const sanpshotData =parseManifest(contents,snapshotName)
+      copyFiles(folderName,sanpshotData,tragetFolder,fields)
+   }
+
+
+   var checkoutmanifestentry = function(folderName,fields,srcfilepath,destinationpath){
+      // add maifest Entry
+      var manifestpath = getmanifestpath(folderName)
+      var manifestdata = "";
+      var dateTime = getdateTime();
+      manifestdata = manifestdata.concat(fields.command[0] + '\t')
+      
+      manifestdata = manifestdata.concat('\t' + srcfilepath)
+      manifestdata = manifestdata.concat('\t' + dateTime)
+      manifestdata = manifestdata.concat('\t' + destinationpath)
+      manifestdata = manifestdata.concat('\n')
+
+      fs.appendFile(manifestpath, manifestdata, function (err) {
+         if (err) throw err;
+         console.log('updated manifest file!');
+      });
+      manifestdata = "";
+   }
+   
+   var copyFiles = function(folderName,sanpshotData,tragetFolder,fields){
+      for(i = 0 ; i< sanpshotData.length; i++){
+         //create target folder
+         if (!fs.existsSync(tragetFolder)) {
+            fs.mkdirSync(tragetFolder)
+         }
+
+         //create main repo folder
+         var repopath =tragetFolder + '/' + folderName
+         if (!fs.existsSync(repopath)) {
+            fs.mkdirSync(repopath)
+         }
+
+         //create internal folders if any
+         var relative_path = sanpshotData[i].actual_path.split('/');
+
+         for(j = 2 ; j < relative_path.length-1 ; j++){
+            repopath =  repopath + '/' + relative_path[j]
+            if (!fs.existsSync(repopath)) {
+               fs.mkdirSync(repopath)
+            }
+         }
+
+         //copy files
+         var destinationpath = tragetFolder +'/'+ sanpshotData[i].actual_path.split('./')[1];
+         fs.copyFile(sanpshotData[i].location,destinationpath,(err) => {
+            if (err) throw err;
+          });
+          console.log(sanpshotData[i].location + ' was copied to ', destinationpath);
+          checkoutmanifestentry('./'+folderName,fields,sanpshotData[i].location,destinationpath)
+      }
+   }
+
+   // function to parse manifest file
+   var parseManifest = function(contents,snapshotName){
+      var contentNewLines = contents.split('\n');
+            var sanpshotData = []
+            for (i = 1; i < contentNewLines.length; i++) {
+               line = contentNewLines[i]
+               if (line != '') {
+                  words = line.split('\t');
+                  command = words[0].split(' ')
+                  if ((words[words.length - 1] == snapshotName) && command[0].toUpperCase() == checkin) {
+                     {
+                        sanpshotData.push({
+                           actual_path: words[2],
+                           location : words[4]
+                        })
+
+                     }
+                  }
+               }
+            }
+            return sanpshotData
+   } 
+
+
+   // function to get manifest file path of repository
+   var getmanifestpath = function (folderName) {
+      return folderName.concat('/manifest.txt');
+      
+   }
+
+   // function to get datetime string 
+   var getdateTime = function(){
+      var today = new Date();
+      var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+      var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+      var dateTime = date + ' ' + time;
+      return dateTime;
    }
 }
