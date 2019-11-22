@@ -56,6 +56,7 @@ module.exports = function (app) {
       if (cmdArray.length == 2) {
          if (cmd == createRepo) {
             //create folder
+            var repName = cmdArray[1];
             createFolder(folderName, repName);
          } if (cmd == list) {
             //function to list snapshots
