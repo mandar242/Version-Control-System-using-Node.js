@@ -97,8 +97,9 @@ module.exports = function(app) {
             if (!fs.existsSync(fpath)) {
                 fs.mkdirSync(fpath)
                 console.log('Repo created successfully.')
+                const craeteRepoContent = createRepo +'\t' + repName + '\n'
                     // writeFile function with filename, content and callback function
-                fs.writeFile(fpath.concat('/manifest.txt'), 'CR \t' + repName, function(err) {
+                fs.writeFile(fpath.concat('/manifest.txt'), craeteRepoContent , function(err) {
                     if (err) throw err;
                     console.log('Manifest File is created successfully.');
                 });
