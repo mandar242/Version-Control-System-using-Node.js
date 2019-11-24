@@ -18,6 +18,7 @@ const createRepo = "CR";
 const checkin = "CH";
 const list = "LIST"
 const checkout = "CHECK-OUT"
+const mergeout = "MERGE-OUT"
 const _ = require('lodash');
 
 
@@ -86,11 +87,20 @@ module.exports = function(app) {
                 const sourceAdd = cmdArray[2].toUpperCase();
                 const userComment = cmdArray[3].toUpperCase();
                 uploadFile2(folderName, fields, res, files, userComment, sourceAdd);
-            }
+            }   
+        }
+        if (cmdArray.length == 5) {
+         if(cmd == mergeout){
+            const sourceSnapshotName = cmdArray[2].toUpperCase();
+            const targetSanpshotName = cmdArray[3].toUpperCase();
+            const LCASnapshotName = findLCA(folderName, sourceSnapshotName, targetSanpshotName);
+            console.log('LCA-'+LCASnapshotName)
+
+         }
         }
     }
 
-
+    
 
     // function to create new repo
     var createFolder = function(fpath, repName) {
@@ -420,5 +430,85 @@ module.exports = function(app) {
         var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
         var dateTime = date + ' ' + time;
         return dateTime;
+    }
+
+    // function to find LCA for merge-out and merge-in
+    var findLCA= function(folderName, sourceSnapshotName, targetSanpshotName){
+      var manifestpath = getmanifestpath(folderName);
+      const contents = fs.readFileSync(manifestpath, { encoding: 'utf-8' });
+      var contentNewLines = contents.split('\n');
+      var linesLength = contentNewLines.length;
+      var targetCheckin = false;
+      var targetCheckout = false;
+      var targetParentSanpshot ='';
+      var sourceCheckin = false;
+      var sourceCheckout = false;
+      var sourceParentSanpshot ='';
+      linesLength = linesLength -1;
+      while(linesLength >= 0){
+         lineContent = contentNewLines[linesLength];
+         
+         //parse manifest from bottom to top
+         if (lineContent !== '' && lineContent!== undefined) {
+            lineContent = lineContent.split('\t');
+            const cmd = lineContent[0].split(' ');
+
+            //find checkin for target sanpshort
+            if(cmd[0].toUpperCase()==checkin ){
+               if(cmd.length ==4){
+                  if (cmd[3].toUpperCase()==targetSanpshotName.toUpperCase()){
+                     targetCheckin = true;
+                  }
+               }else{
+                  if (cmd[2].toUpperCase()==targetSanpshotName.toUpperCase()){
+                     targetCheckin = true;
+                  }
+               }
+               
+            }       
+            
+            // if checkin for target sanpshort is found then find checkout for it
+            if(targetCheckin){
+               if(cmd[0].toUpperCase()==checkout ){
+                     targetCheckout = true;
+                     targetParentSanpshot = cmd[3];
+                     console.log('targetParentSanpshot - '+ targetParentSanpshot)
+               }
+            } 
+            
+            //find checkin for source sanpshort
+            if(cmd[0].toUpperCase()==checkin ){
+               if(cmd.length == 4){
+                  if(cmd[3].toUpperCase()==sourceSnapshotName.toUpperCase()){
+                     sourceCheckin = true;
+                  }else{
+                     if(cmd[2].toUpperCase()==sourceSnapshotName.toUpperCase()){
+                        sourceCheckin = true;
+                     }
+                  }
+               }  
+            }
+
+            // if checkin for source sanpshort is found then find checkout for it
+            if(sourceCheckin){
+               if(cmd[0].toUpperCase()==checkout ){                  
+                     sourceCheckout = true;
+                     sourceParentSanpshot = cmd[3];
+                     console.log('sourceParentSanpshot - '+sourceParentSanpshot)
+               }
+            }         
+            
+            // if both check out is same then return LCA
+            if(targetCheckout && sourceCheckout){
+               if(targetParentSanpshot == sourceParentSanpshot){
+                  console.log('LCA Found - '+sourceParentSanpshot)
+                  return sourceParentSanpshot;
+               }
+            }
+            
+         }
+         linesLength = linesLength - 1;
+      }
+
     }
 }

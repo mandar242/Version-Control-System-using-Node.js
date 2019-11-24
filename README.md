@@ -19,6 +19,9 @@ command details  <br />
 4.check-out repo<br />
     check-out #RepoName #targetFolderName #snapshotName<br />
 
+5.merge-out repo<br />
+    merge-out #RepoName #sourceSanpshortName #targetSnapshortName #targetFolderName
+
 steps to execute
 browserify views/client.js -o bundle.js
 node server.js
