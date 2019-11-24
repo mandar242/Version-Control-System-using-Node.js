@@ -75,6 +75,7 @@ module.exports = function(app) {
 
         if (cmdArray.length == 4) {
             if (cmd === checkout) {
+               
                 const tragetFolder = './' + cmdArray[2];
                 const snapshotName = cmdArray[3].toUpperCase();
                 //check out snapshot
@@ -96,7 +97,7 @@ module.exports = function(app) {
         try {
             if (!fs.existsSync(fpath)) {
                 fs.mkdirSync(fpath)
-                console.log('Repo created successfully.')
+                console.log(repName + ' repo created successfully.')
                 const craeteRepoContent = createRepo +'\t' + repName + '\n'
                     // writeFile function with filename, content and callback function
                 fs.writeFile(fpath.concat('/manifest.txt'), craeteRepoContent , function(err) {
@@ -207,7 +208,6 @@ module.exports = function(app) {
             // multiple files upload      
             _.forEach(_.keysIn(files.filetocheckin), (key) => {
                 let fileObj = files.filetocheckin[key];
-                console.log(fileObj);
                 var fname = fileObj.originalFilename.split("/");
                 var relativePath = "";
                 relativePath = relativePath.concat(folderName)
@@ -345,28 +345,35 @@ module.exports = function(app) {
     var copyFiles = function(folderName, sanpshotData, tragetFolder, fields) {
         for (i = 0; i < sanpshotData.length; i++) {
             //create target folder
+            
             if (!fs.existsSync(tragetFolder)) {
                 fs.mkdirSync(tragetFolder)
             }
 
+            
             //create main repo folder
-            var repopath = tragetFolder + '/' + folderName
+            //var repopath = tragetFolder + '/' + folderName
+            var repopath = tragetFolder
             if (!fs.existsSync(repopath)) {
                 fs.mkdirSync(repopath)
             }
 
             //create internal folders if any
             var relative_path = sanpshotData[i].actual_path.split('/');
-
             for (j = 2; j < relative_path.length - 1; j++) {
                 repopath = repopath + '/' + relative_path[j]
+                console.log('---'+repopath)
                 if (!fs.existsSync(repopath)) {
                     fs.mkdirSync(repopath)
                 }
             }
 
             //copy files
-            var destinationpath = tragetFolder + '/' + sanpshotData[i].actual_path.split('./')[1];
+            var dest = sanpshotData[i].actual_path.split('./'+folderName)[1];
+            console.log(dest)
+
+            //var destinationpath = tragetFolder + '/' + sanpshotData[i].actual_path.split('./')[1];
+            var destinationpath = tragetFolder  + dest;
             fs.copyFile(sanpshotData[i].location, destinationpath, (err, callback) => {
                 if (err) throw err;
             });
