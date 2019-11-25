@@ -522,6 +522,16 @@ module.exports = function (app) {
       return dateTime;
    }
 
+   // rename file in destination
+     var renameFileInDestindation =function(oldFileName,newFileName){
+        fs.rename(oldFileName, newFileName, function (err) {
+            if (err) {console.log(err); return; }
+            
+            console.log('The file has been re-named from: '+oldFileName+ " from :"+ newFileName);
+            });
+     }
+   
+   
    // function to find LCA for merge-out and merge-in
    var findLCA = function (folderName, sourceSnapshotName, targetSanpshotName) {
       var manifestpath = getmanifestpath(folderName);
