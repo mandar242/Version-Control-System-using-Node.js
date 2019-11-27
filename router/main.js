@@ -146,10 +146,12 @@ module.exports = function (app) {
             fs.copyFile(sourceSanpshotData[i].location, destinationpath, (err, callback) => {
                if (err) throw err;
             });
+            console.log("calling manifest ");
+            checkoutmanifestentry(repoName, fields, sourceSanpshotData[i].location, destinationpath, "");
+            console.log(sourceSanpshotData[i].location + ' was copied to ', destinationpath);
+            destinationpath = ''
          }
-         console.log("calling manifest ");
-         checkoutmanifestentry(repoName, fields, sourceSanpshotData[i].location, destinationpath, "");
-         console.log(sourceSanpshotData[i].location + ' was copied to ', destinationpath);
+         
 
       }
 
@@ -185,9 +187,11 @@ module.exports = function (app) {
             fs.copyFile(commonSanpshotData[i].location, destinationpath, (err, callback) => {
                if (err) throw err;
             });
+            checkoutmanifestentry("./" + repoName, fields, commonSanpshotData[i].location, destinationpath, "");
+            console.log(commonSanpshotData[i].location + ' was copied to ', destinationpath);
+            destinationpath = '';
          }
-         checkoutmanifestentry("./" + repoName, fields, commonSanpshotData[i].location, destinationpath, "");
-         console.log(commonSanpshotData[i].location + ' was copied to ', destinationpath);
+         
 
       }
    }
