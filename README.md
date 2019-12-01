@@ -1,4 +1,4 @@
-### Version Control System
+# Version Control System
 
 ## Pre-requsites:
 1. Install Node: 
