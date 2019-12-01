@@ -4,31 +4,31 @@
 Install Node: 
     -> step: npm i
 
-## command details  <br />
+## command details  
 
-###### 1. create repo<br />
-    cr #RepoName <br />
+###### 1. create repo
+    cr #RepoName 
 
-###### 2. checkin file<br />
-    a. first checkin<br />
-        ch #RepoName #snapshotName<br />
-        select file/folder based on radio button status from file browser<br />
+###### 2. checkin file
+    a. first checkin
+        ch #RepoName #snapshotName
+        select file/folder based on radio button status from file browser
 
-    b.after first checkin<br />
-        ch #RepoName #sourceFolderName #snapshortName<br />
-        select file/folder based on radio button status from file browser<br />
+    b.after first checkin
+        ch #RepoName #sourceFolderName #snapshortName
+        select file/folder based on radio button status from file browser
 
 
-###### 3. list repo<br />
-    list #RepoName <br />
+###### 3. list repo
+    list #RepoName 
 
-###### 4. check-out repo<br />
-    check-out #RepoName #targetFolderName #snapshotName<br />
+###### 4. check-out repo
+    check-out #RepoName #targetFolderName #snapshotName
 
-###### 5. merge-out repo<br />
+###### 5. merge-out repo
     merge-out #RepoName #sourceSanpshortName #targetSnapshortName #targetFolderName
 
-###### 6. merge-in repo<br />
+###### 6. merge-in repo
     merge-in #RepoName #sourceSnapshortName #targetSnapshortName #targetFolderName #snapshortName
 
 ## steps to execute
