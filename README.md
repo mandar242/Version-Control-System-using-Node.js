@@ -1,8 +1,8 @@
 # Version Control System
 
 ## Pre-requsites:
-Install Node: 
-    -> step: npm i
+Install Node:<br /> 
+    execute command : npm i
 
 ## command details  
 
