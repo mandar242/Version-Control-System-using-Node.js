@@ -32,7 +32,7 @@ Install Node:
     merge-in #RepoName #sourceSnapshortName #targetSnapshortName #targetFolderName #snapshortName
 
 ## steps to execute
-browserify views/client.js -o bundle.js
-node server.js
-localhost://3000
+browserify views/client.js -o bundle.js<br />
+node server.js<br />
+localhost://3000<br />
 
